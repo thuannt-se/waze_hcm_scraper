@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: waze_hcm_scraper
+
+waze:
+  http.:
+    uri: https://www.waze.com
+    vehicl_type:
+      - TAXI
+      - MOTORCYCLE
+    base_coord:
+      US:
+        lat: 40.713
+        lon: -74.006
+      EU:
+        lat: 47.498
+        lon: 19.040
+      IL:
+        lat: 31.768
+        lon: 35.214
+      AU:
+        lat: -35.281
+        lon: 149.128
+      HCMC:
+        lat: 10.776671
+        lon: 106.701107
+    coord_servers:
+      US: SearchServer/mozi
+      EU: row-SearchServer/mozi
+      IL: il-SearchServer/mozi
+      AU: row-SearchServer/mozi
+      HCMC: row-SearchServer/mozi
+    routing_servers:
+      US: RoutingManager/routingRequest
+      EU: row-RoutingManager/routingRequest
+      IL: il-RoutingManager/routingRequest
+      AU: row-RoutingManager/routingRequest
+      HCMC: row-RoutingManager/routingRequest

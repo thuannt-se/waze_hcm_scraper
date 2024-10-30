@@ -1,0 +1,15 @@
+trip:
+  north_south:
+    origin:
+      lat:
+      long:
+    destination:
+      lat:
+      long:
+  east_west:
+    origin:
+      lat:
+      long:
+    destination:
+      lat:
+      long:
