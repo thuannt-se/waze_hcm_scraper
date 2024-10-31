@@ -8,6 +8,5 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class WazeRoutingService {
     //simple handle for retrieving data and returning it
-    private final WazeConfiguration wa
 
 }

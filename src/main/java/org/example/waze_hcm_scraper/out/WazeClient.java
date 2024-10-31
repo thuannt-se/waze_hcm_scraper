@@ -7,9 +7,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.message.BasicNameValuePair;
-import org.example.waze_hcm_scraper.config.HttpClientConfig;
 import org.example.waze_hcm_scraper.config.WazeConfiguration;
-import org.example.waze_hcm_scraper.domain.Coordinate;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
