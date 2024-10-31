@@ -3,6 +3,7 @@ plugins {
 	id 'org.springframework.boot' version '3.3.5'
 	id 'io.spring.dependency-management' version '1.1.6'
 	id 'org.graalvm.buildtools.native' version '0.10.3'
+	id "io.freefair.lombok" version "8.10.2"
 }
 
 group = 'org.example'
@@ -22,7 +23,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-quartz'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	implementation 'org.apache.httpcomponents:httpclient:4.5.14'
 }
+
 
 tasks.named('test') {
 	useJUnitPlatform()
