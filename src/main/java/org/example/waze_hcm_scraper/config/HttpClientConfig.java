@@ -2,8 +2,11 @@ package org.example.waze_hcm_scraper.config;
 
 import org.apache.http.HeaderElement;
 import org.apache.http.HeaderElementIterator;
+import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.HttpRequestRetryHandler;
+import org.apache.http.client.ServiceUnavailableRetryStrategy;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
@@ -24,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -104,6 +108,26 @@ public class HttpClientConfig {
                 .setDefaultRequestConfig(requestConfig)
                 .setConnectionManager(poolingConnectionManager())
                 .setKeepAliveStrategy(connectionKeepAliveStrategy())
+                .setRetryHandler(new HttpRequestRetryHandler() {
+                    @Override
+                    public boolean retryRequest(IOException exception, int executionCount, HttpContext context) {
+                        return executionCount <= 5 ;
+                    }
+                })
+                .setServiceUnavailableRetryStrategy(new ServiceUnavailableRetryStrategy() {
+                    int waitPeriod = 100;
+                    @Override
+                    public boolean retryRequest(HttpResponse response, int executionCount, HttpContext context) {
+                        waitPeriod *= 2;
+                        return executionCount <= 5 &&
+                                response.getStatusLine().getStatusCode() >= 500; //important!
+                    }
+
+                    @Override
+                    public long getRetryInterval() {
+                        return waitPeriod;
+                    }
+                })
                 .build();
     }
 }
