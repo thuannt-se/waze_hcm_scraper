@@ -2,14 +2,14 @@ trip:
   north_south:
     origin:
       lat:
-      long:
+      lon:
     destination:
       lat:
-      long:
+      lon:
   east_west:
     origin:
       lat:
-      long:
+      lon:
     destination:
       lat:
-      long:
+      lon:

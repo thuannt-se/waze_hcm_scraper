@@ -1,6 +1,8 @@
 spring:
   application:
     name: waze_hcm_scraper
+  config:
+    import: org_des_config.yml
 
 waze:
   http_uri: https://www.waze.com

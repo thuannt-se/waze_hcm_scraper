@@ -1,30 +1,49 @@
 package org.example.waze_hcm_scraper.service;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j;
 import org.example.waze_hcm_scraper.config.WazeConfiguration;
 import org.example.waze_hcm_scraper.out.WazeClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.io.InputStream;
 import java.util.Map;
 
 @Service
 @AllArgsConstructor
+@Log4j
 public class WazeRoutingService {
     //simple handle for retrieving data and returning it
     private final WazeConfiguration wazeConfiguration;;
     private final WazeClient wazeClient;
+    private final String COOR_PATTERN = "x:%s y:%s";
+    private static final Logger logger = LoggerFactory.getLogger(WazeRoutingService.class);
+
     private static final Map<String, String> HEADER_MAP = Map.of(
             "User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
             "referer", "https://www.waze.com/"
     );
 
-    public String getRoutingData(String coordinateServer, Map<String, String> options) {
+    public InputStream getRoutingData(String coordinateServer) {
         try {
+            var options = Map.of(
+                    "from", String.format(COOR_PATTERN, wazeConfiguration.getBaseCoord()),
+                    "to", "waze",
+                    "at", "0",
+                    "returnJSON", "true",
+                    "returnGeometries", "true",
+                    "returnInstructions", "true",
+                    "timeout", "60000",
+                    "nPaths", "3",
+                    "options", "AVOID_TRAILS:t"
+            );
             var response = wazeClient.getRoutingData(coordinateServer, options, HEADER_MAP);
-            var body = response.getEntity().getContent();
-            return wazeClient.getRoutingData(coordinateServer, options, HEADER_MAP);
+            return response.getEntity().getContent();
         } catch (Exception e) {
-            return "Failed to get routing data from Waze";
+            logger.error("Failed to get routing data from Waze", e);
+            return null;
         }
     }
 }

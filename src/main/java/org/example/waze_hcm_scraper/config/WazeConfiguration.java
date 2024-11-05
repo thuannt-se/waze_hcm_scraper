@@ -3,6 +3,7 @@ package org.example.waze_hcm_scraper.config;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.waze_hcm_scraper.domain.Coordinate;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,12 +17,8 @@ public class WazeConfiguration {
     private String httpUri;
     private List<String> vehicleType;
     private Map<String, Coordinate> baseCoord;
+    private List<Map<String, Coordinate>> tripCoord;
     private Map<String, String> coordServers;
     private Map<String, String> routingServers;
 
-    @Data
-    public static class Coordinate {
-        private String lat;
-        private String lon;
-    }
 }
