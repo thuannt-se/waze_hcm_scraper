@@ -2,21 +2,22 @@ package org.example.waze_hcm_scraper.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j;
-import org.example.waze_hcm_scraper.config.WazeConfiguration;
+import org.example.waze_hcm_scraper.domain.Coordinate;
 import org.example.waze_hcm_scraper.out.WazeClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @AllArgsConstructor
 @Log4j
 public class WazeRoutingService {
     //simple handle for retrieving data and returning it
-    private final WazeConfiguration wazeConfiguration;;
     private final WazeClient wazeClient;
     private final String COOR_PATTERN = "x:%s y:%s";
     private static final Logger logger = LoggerFactory.getLogger(WazeRoutingService.class);
@@ -26,24 +27,27 @@ public class WazeRoutingService {
             "referer", "https://www.waze.com/"
     );
 
-    public InputStream getRoutingData(String coordinateServer) {
+
+    @Async
+    public CompletableFuture<InputStream> getRoutingData(String coordinateServer, Coordinate from, Coordinate to) {
         try {
             var options = Map.of(
-                    "from", String.format(COOR_PATTERN, wazeConfiguration.getBaseCoord()),
-                    "to", "waze",
-                    "at", "0",
+                    "from", String.format(COOR_PATTERN, from.getLon(), from.getLat()),
+                    "to", String.format(COOR_PATTERN, to.getLon(), to.getLat()),
+                    "at", "1",
                     "returnJSON", "true",
                     "returnGeometries", "true",
                     "returnInstructions", "true",
                     "timeout", "60000",
                     "nPaths", "3",
-                    "options", "AVOID_TRAILS:t"
+                    "options", "AVOID_TRAILS:",
+                    "vehicleType", "MOTORCYCLE"
             );
             var response = wazeClient.getRoutingData(coordinateServer, options, HEADER_MAP);
-            return response.getEntity().getContent();
+            return CompletableFuture.completedFuture(response.getEntity().getContent());
         } catch (Exception e) {
             logger.error("Failed to get routing data from Waze", e);
-            return null;
+            return CompletableFuture.completedFuture(null);
         }
     }
 }

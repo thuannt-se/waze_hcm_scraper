@@ -1,15 +1,16 @@
-trip:
-  north_south:
+waze:
+  trip:
+  - name: north_south # KCN tan phu trung -> lotte mart le dai hanh
     origin:
-      lat:
-      lon:
+      lat: 10.9266034
+      lon: 106.5563046
     destination:
-      lat:
-      lon:
-  east_west:
+      lat: 10.7631186
+      lon: 106.6567147
+  - name: east_west #dai lo dong tay
     origin:
-      lat:
-      lon:
+      lat: 10.718864
+      lon: 106.604559
     destination:
-      lat:
-      lon:
+      lat: 10.769021
+      lon: 106.705320
