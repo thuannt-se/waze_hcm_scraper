@@ -2,6 +2,7 @@ package org.example.waze_hcm_scraper.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.example.waze_hcm_scraper.domain.Coordinate;
 import org.example.waze_hcm_scraper.out.WazeClient;
 import org.slf4j.Logger;
@@ -15,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 
 @Service
 @AllArgsConstructor
-@Log4j
+@Slf4j
 public class WazeRoutingService {
     //simple handle for retrieving data and returning it
     private final WazeClient wazeClient;

@@ -5,7 +5,7 @@ spring:
     import: org_des_config.yml
 
 waze:
-  http_uri: https://www.waze.com
+  http_uri: https://www.waze.com/
   vehicle_type:
     - TAXI
     - MOTORCYCLE

@@ -28,7 +28,7 @@ public class WazeClient {
     private final WazeConfiguration wazeConfiguration;
 
     public HttpResponse getRoutingData(String coordinateServer, Map<String, String> options, Map<String, String> headerMap) throws URISyntaxException, IOException {
-        HttpGet httpGet = new HttpGet(wazeConfiguration.getHttpUri() + wazeConfiguration.getCoordServers().get(coordinateServer));
+        HttpGet httpGet = new HttpGet(wazeConfiguration.getHttpUri() + wazeConfiguration.getRoutingServers().get(coordinateServer));
         URI uri = new URIBuilder(httpGet.getURI())
                 .addParameters(options.entrySet().stream()
                         .map(e -> new BasicNameValuePair(e.getKey(), e.getValue()))

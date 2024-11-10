@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.waze_hcm_scraper.config.WazeConfiguration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,7 @@ import java.io.*;
 import java.sql.Timestamp;
 
 @Service
+@EnableScheduling
 @RequiredArgsConstructor
 @Slf4j
 public class SchedulerService {
@@ -27,8 +29,9 @@ public class SchedulerService {
 
     @Scheduled(cron = "0 */5 5-23 * * *")
     public void wazeScheduler() {
+        log.info("Starting Waze Scheduler...");
         wazeConfiguration.getTrip().forEach(tripCoordinate -> {
-            wazeRoutingService.getRoutingData("row-SearchServer/mozi", tripCoordinate.getOrigin(), tripCoordinate.getDestination())
+            wazeRoutingService.getRoutingData("HCMC", tripCoordinate.getOrigin(), tripCoordinate.getDestination())
                     .thenAccept(inputStream -> {
                         try {
                             writeToFile(inputStream, tripCoordinate.getName());
@@ -47,7 +50,7 @@ public class SchedulerService {
         var now = timestamp.toInstant().toEpochMilli();
         // Create a custom file name based on the current timestamp
         String fileName = name + "_" + now + ".json";
-        File outputFile = new File(fileName);
+        File outputFile = new File("src/main/resources/output/raw_waze_data", fileName);
         FileOutputStream outputStream = new FileOutputStream(outputFile);
         JsonGenerator generator = factory.createGenerator(outputStream);
 
@@ -72,6 +75,7 @@ public class SchedulerService {
         // Close the parser, generator, and streams
         parser.close();
         generator.close();
+        inputStream.close();
         outputStream.close();
 
         log.info("JSON data processed and saved to " + fileName + " successfully.");
