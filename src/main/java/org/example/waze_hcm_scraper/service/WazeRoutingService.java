@@ -41,7 +41,6 @@ public class WazeRoutingService {
                     "returnInstructions", "true",
                     "timeout", "60000",
                     "nPaths", "3",
-                    "options", "AVOID_TRAILS:",
                     "vehicleType", "MOTORCYCLE"
             );
             var response = wazeClient.getRoutingData(coordinateServer, options, HEADER_MAP);

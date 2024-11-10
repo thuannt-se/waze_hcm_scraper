@@ -14,7 +14,10 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutionException;
+
+import static org.example.waze_hcm_scraper.service.SchedulerService.writeToFile;
 
 @AutoConfiguration
 @EnableConfigurationProperties
@@ -36,7 +39,13 @@ public class WazeHcmScraperApplication {
 	@EventListener(ApplicationReadyEvent.class)
 	public void doStartRequest() throws ExecutionException, InterruptedException {
 		wazeRoutingService.getRoutingData("HCMC", wazeConfiguration.getTrip().get(0).getOrigin(),
-				wazeConfiguration.getTrip().get(0).getDestination()).get();
+				wazeConfiguration.getTrip().get(0).getDestination()).thenAccept(inputStream -> {
+			try {
+				writeToFile(inputStream, "test");
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		});
 
 	}
 

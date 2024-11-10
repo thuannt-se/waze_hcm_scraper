@@ -42,14 +42,19 @@ public class SchedulerService {
         });
     }
 
-    private void writeToFile(InputStream inputStream, String name) throws IOException {
+    public static void writeToFile(InputStream inputStream, String name) throws IOException {
         JsonFactory factory = new JsonFactory();
         ObjectMapper mapper = new ObjectMapper();
         JsonParser parser = factory.createParser(inputStream);
-
         var now = timestamp.toInstant().toEpochMilli();
+        var currentDayOfWeek = timestamp.toLocalDateTime().getDayOfWeek().name();
         // Create a custom file name based on the current timestamp
+        File outputFolder = new File("src/main/resources/output/raw_waze_data/" + currentDayOfWeek );
+        if (!outputFolder.exists()) {
+            outputFolder.mkdirs();
+        }
         String fileName = name + "_" + now + ".json";
+
         File outputFile = new File("src/main/resources/output/raw_waze_data", fileName);
         FileOutputStream outputStream = new FileOutputStream(outputFile);
         JsonGenerator generator = factory.createGenerator(outputStream);
