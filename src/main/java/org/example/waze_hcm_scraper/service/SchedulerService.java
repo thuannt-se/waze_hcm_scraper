@@ -49,13 +49,13 @@ public class SchedulerService {
         var now = timestamp.toInstant().toEpochMilli();
         var currentDayOfWeek = timestamp.toLocalDateTime().getDayOfWeek().name();
         // Create a custom file name based on the current timestamp
-        File outputFolder = new File("src/main/resources/output/raw_waze_data/" + currentDayOfWeek );
+        File outputFolder = new File("src/main/resources/output/raw_waze_data/" + currentDayOfWeek + "/" + name);
         if (!outputFolder.exists()) {
             outputFolder.mkdirs();
         }
         String fileName = name + "_" + now + ".json";
 
-        File outputFile = new File("src/main/resources/output/raw_waze_data", fileName);
+        File outputFile = new File(outputFolder, fileName);
         FileOutputStream outputStream = new FileOutputStream(outputFile);
         JsonGenerator generator = factory.createGenerator(outputStream);
 
