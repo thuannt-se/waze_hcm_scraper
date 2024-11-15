@@ -1,10 +1,9 @@
-package org.example.waze_hcm_scraper.service;
+package org.thuannt.waze_hcm_scraper.service;
 
 import lombok.AllArgsConstructor;
-import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
-import org.example.waze_hcm_scraper.domain.Coordinate;
-import org.example.waze_hcm_scraper.out.WazeClient;
+import org.thuannt.waze_hcm_scraper.domain.Coordinate;
+import org.thuannt.waze_hcm_scraper.out.WazeClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;

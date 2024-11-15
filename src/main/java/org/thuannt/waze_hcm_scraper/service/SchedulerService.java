@@ -1,4 +1,4 @@
-package org.example.waze_hcm_scraper.service;
+package org.thuannt.waze_hcm_scraper.service;
 
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -8,7 +8,8 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.waze_hcm_scraper.config.WazeConfiguration;
+import org.springframework.beans.factory.annotation.Value;
+import org.thuannt.waze_hcm_scraper.config.WazeConfiguration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,8 @@ public class SchedulerService {
     private final WazeRoutingService wazeRoutingService;
     private final WazeConfiguration wazeConfiguration;
 
-    private static final Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+    @Value("${file.upload.path}")
+    private String filePath;
 
     @Scheduled(cron = "0 */5 5-23 * * *")
     public void wazeScheduler() {
@@ -42,18 +44,18 @@ public class SchedulerService {
         });
     }
 
-    public static void writeToFile(InputStream inputStream, String name) throws IOException {
+    private void writeToFile(InputStream inputStream, String name) throws IOException {
         JsonFactory factory = new JsonFactory();
-        ObjectMapper mapper = new ObjectMapper();
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         JsonParser parser = factory.createParser(inputStream);
-        var now = timestamp.toInstant().toEpochMilli();
         var currentDayOfWeek = timestamp.toLocalDateTime().getDayOfWeek().name();
         // Create a custom file name based on the current timestamp
-        File outputFolder = new File("src/main/resources/output/raw_waze_data/" + currentDayOfWeek + "/" + name);
+
+        File outputFolder = new File(filePath + "/" + currentDayOfWeek + "/" + name);
         if (!outputFolder.exists()) {
             outputFolder.mkdirs();
         }
-        String fileName = name + "_" + now + ".json";
+        String fileName = name + "_" + timestamp.toInstant().toEpochMilli() + ".json";
 
         File outputFile = new File(outputFolder, fileName);
         FileOutputStream outputStream = new FileOutputStream(outputFile);

@@ -1,7 +1,7 @@
-package org.example.waze_hcm_scraper.config;
+package org.thuannt.waze_hcm_scraper.config;
 
 import lombok.Data;
-import org.example.waze_hcm_scraper.domain.Coordinate;
+import org.thuannt.waze_hcm_scraper.domain.Coordinate;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 

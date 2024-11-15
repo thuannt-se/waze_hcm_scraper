@@ -4,6 +4,10 @@ spring:
   config:
     import: org_des_config.yml
 
+file:
+  upload:
+    path: "/waze-data"
+
 waze:
   http_uri: https://www.waze.com/
   vehicle_type:

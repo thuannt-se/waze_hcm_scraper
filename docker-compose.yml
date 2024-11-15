@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      -  /Users/thuannt.se/work/master_cs/scraper_source/git_source/waze_data:/waze-data

@@ -1,4 +1,4 @@
-package org.example.waze_hcm_scraper.out;
+package org.thuannt.waze_hcm_scraper.out;
 
 
 import lombok.AllArgsConstructor;
@@ -9,7 +9,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
-import org.example.waze_hcm_scraper.config.WazeConfiguration;
+import org.thuannt.waze_hcm_scraper.config.WazeConfiguration;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
