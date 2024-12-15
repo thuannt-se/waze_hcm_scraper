@@ -64,6 +64,9 @@ public class SchedulerService {
         // Start writing the output JSON object
         generator.writeStartObject();
 
+        // Start writing the output JSON
+        copyJsonStructure(parser, generator);
+
         while (parser.nextToken() != null) {
             JsonToken token = parser.getCurrentToken();
             if (token == JsonToken.FIELD_NAME) {
@@ -88,4 +91,40 @@ public class SchedulerService {
         log.info("JSON data processed and saved to " + fileName + " successfully.");
     }
 
+    private void copyJsonStructure(JsonParser parser, JsonGenerator generator) throws IOException {
+        int depth = 0;
+        while (parser.nextToken() != null) {
+            JsonToken token = parser.getCurrentToken();
+
+            switch (token) {
+                case START_OBJECT:
+                case START_ARRAY:
+                    depth++;
+                    log.debug("Entering nested level: " + depth);
+                    if (depth > 100) { // Example validation
+                        throw new IOException("JSON structure too deeply nested");
+                    }
+                    generator.copyCurrentStructure(parser);
+                    break;
+
+                case END_OBJECT:
+                case END_ARRAY:
+                    depth--;
+                    log.debug("Exiting nested level: " + depth);
+                    if (depth < 0) {
+                        throw new IOException("Invalid JSON structure: unmatched closing bracket/brace");
+                    }
+                    break;
+
+                default:
+                    generator.copyCurrentEvent(parser);
+                    break;
+            }
+        }
+
+        // Final validation
+        if (depth != 0) {
+            throw new IOException("Invalid JSON structure: unclosed objects or arrays");
+        }
+    }
 }
