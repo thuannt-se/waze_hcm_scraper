@@ -5,16 +5,18 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.thuannt.waze_hcm_scraper.config.WazeConfiguration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.thuannt.waze_hcm_scraper.config.WazeConfiguration;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Timestamp;
 
 @Service
@@ -51,7 +53,7 @@ public class SchedulerService {
         var currentDayOfWeek = timestamp.toLocalDateTime().getDayOfWeek().name();
         // Create a custom file name based on the current timestamp
 
-        File outputFolder = new File(filePath + "/" + currentDayOfWeek + "/" + name);
+        File outputFolder = new File("resources/output/raw_waze_data/FRIDAY" + "/" + currentDayOfWeek + "/" + name);
         if (!outputFolder.exists()) {
             outputFolder.mkdirs();
         }
@@ -61,26 +63,9 @@ public class SchedulerService {
         FileOutputStream outputStream = new FileOutputStream(outputFile);
         JsonGenerator generator = factory.createGenerator(outputStream);
 
-        // Start writing the output JSON object
-        generator.writeStartObject();
 
         // Start writing the output JSON
         copyJsonStructure(parser, generator);
-
-        while (parser.nextToken() != null) {
-            JsonToken token = parser.getCurrentToken();
-            if (token == JsonToken.FIELD_NAME) {
-                String fieldName = parser.currentName();
-                parser.nextToken();
-                String fieldValue = parser.getText();
-                // Process the field value as needed
-                generator.writeFieldName(fieldName);
-                generator.writeString(fieldValue);
-            }
-        }
-
-        // End writing the output JSON object
-        generator.writeEndObject();
 
         // Close the parser, generator, and streams
         parser.close();
@@ -92,39 +77,47 @@ public class SchedulerService {
     }
 
     private void copyJsonStructure(JsonParser parser, JsonGenerator generator) throws IOException {
-        int depth = 0;
-        while (parser.nextToken() != null) {
+        while (parser.nextToken() != null) {  // This loop continues until we run out of tokens
             JsonToken token = parser.getCurrentToken();
 
             switch (token) {
                 case START_OBJECT:
-                case START_ARRAY:
-                    depth++;
-                    log.debug("Entering nested level: " + depth);
-                    if (depth > 100) { // Example validation
-                        throw new IOException("JSON structure too deeply nested");
-                    }
                     generator.copyCurrentStructure(parser);
                     break;
-
                 case END_OBJECT:
+                    generator.copyCurrentStructure(parser);
+                    break;
+                case START_ARRAY:
+                    generator.writeStartArray();
+                    break;
                 case END_ARRAY:
-                    depth--;
-                    log.debug("Exiting nested level: " + depth);
-                    if (depth < 0) {
-                        throw new IOException("Invalid JSON structure: unmatched closing bracket/brace");
-                    }
+                    generator.writeEndArray();
+                    break;
+                case FIELD_NAME:
+                    generator.writeFieldName(parser.getCurrentName());
+                    break;
+                case VALUE_STRING:
+                    generator.writeString(parser.getText());
+                    break;
+                case VALUE_NUMBER_INT:
+                    generator.writeNumber(parser.getLongValue());
+                    break;
+                case VALUE_NUMBER_FLOAT:
+                    generator.writeNumber(parser.getDoubleValue());
                     break;
 
-                default:
-                    generator.copyCurrentEvent(parser);
-                    break;
+                case VALUE_TRUE:
+                    generator.writeBoolean(true);
+                    break;  // Only breaks the switch, returns to while loop
+
+                case VALUE_FALSE:
+                    generator.writeBoolean(false);
+                    break;  //
+
+                case VALUE_NULL:
+                    generator.writeNull();
+                    break;  // Only breaks the switch, returns to while loop
             }
-        }
-
-        // Final validation
-        if (depth != 0) {
-            throw new IOException("Invalid JSON structure: unclosed objects or arrays");
         }
     }
 }
