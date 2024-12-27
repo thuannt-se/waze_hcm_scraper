@@ -53,7 +53,7 @@ public class SchedulerService {
         var currentDayOfWeek = timestamp.toLocalDateTime().getDayOfWeek().name();
         // Create a custom file name based on the current timestamp
 
-        File outputFolder = new File("resources/output/raw_waze_data/FRIDAY" + "/" + currentDayOfWeek + "/" + name);
+        File outputFolder = new File(filePath + "/" + currentDayOfWeek + "/" + name);
         if (!outputFolder.exists()) {
             outputFolder.mkdirs();
         }

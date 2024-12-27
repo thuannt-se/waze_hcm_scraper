@@ -2,7 +2,7 @@ package org.thuannt.waze_hcm_scraper.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.thuannt.waze_hcm_scraper.domain.Coordinate;
+import org.thuannt.waze_hcm_scraper.config.Coordinate;
 import org.thuannt.waze_hcm_scraper.out.WazeClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

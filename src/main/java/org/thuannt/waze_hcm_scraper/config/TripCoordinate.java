@@ -1,4 +1,4 @@
-package org.thuannt.waze_hcm_scraper.domain;
+package org.thuannt.waze_hcm_scraper.config;
 
 import lombok.Data;
 
