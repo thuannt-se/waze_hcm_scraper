@@ -9,3 +9,6 @@ services:
       - "8080:8080"
     volumes:
       -  /Users/thuannt.se/work/master_cs/scraper_source/git_source/waze_data:/waze-data
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TZ=Asia/Ho_Chi_Minh

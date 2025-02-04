@@ -17,6 +17,10 @@ public class TabularDataConverter {
 
     private final RawToSegmentDataMapper mapper;
 
+    public List<RoadSegment> convert(Alternatives alternatives) {
+        return transformToRoadSegment(alternatives);
+    }
+
     private List<RoadSegment> transformToRoadSegment(Alternatives alternatives) {
         return alternatives.getRoutingData().stream()
                 .map(RoutingData::getResponse)

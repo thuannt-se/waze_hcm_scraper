@@ -4,15 +4,20 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.opencsv.CSVWriter;
+import com.opencsv.bean.StatefulBeanToCsv;
+import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.thuannt.waze_hcm_scraper.domain.waze.tabular.RoadSegment;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.lang.reflect.Field;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -93,6 +98,40 @@ public class FileHelpers {
                     generator.writeNull();
                     break;  // Only breaks the switch, returns to while loop
             }
+        }
+    }
+
+    public void writeRoadSegmentsToCsv(List<RoadSegment> roadSegments, String fileName) throws IOException {
+        var currentDayOfWeek = LocalDateTime.now().getDayOfWeek().name();
+        File outputFolder = new File(filePath + "/" + currentDayOfWeek + "/" + fileName);
+        if (!outputFolder.exists()) {
+            outputFolder.mkdirs();
+        }
+
+        String csvFileName = fileName + ".csv";
+        File csvFile = new File(outputFolder, csvFileName);
+
+        try (Writer writer = new FileWriter(csvFile)) {
+            StatefulBeanToCsv<RoadSegment> beanToCsv = new StatefulBeanToCsvBuilder<RoadSegment>(writer)
+                    .withQuotechar(CSVWriter.DEFAULT_QUOTE_CHARACTER)
+                    .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
+                    .withOrderedResults(true)
+                    .build();
+
+            // Write headers manually using property names
+            CSVWriter csvWriter = new CSVWriter(writer);
+            Field[] fields = RoadSegment.class.getDeclaredFields();
+            String[] headers = Arrays.stream(fields)
+                    .map(Field::getName)
+                    .toArray(String[]::new);
+            csvWriter.writeNext(headers);
+
+            // Write data
+            beanToCsv.write(roadSegments);
+            log.info("CSV file created successfully: " + csvFileName);
+        } catch (Exception e) {
+            log.error("Error writing CSV file: " + e.getMessage(), e);
+            throw new IOException("Failed to write CSV file", e);
         }
     }
 }
