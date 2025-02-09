@@ -20,5 +20,7 @@ public class RoadSegment {
     private int crossTimeFreeFlow;
     private int roadType;
     private int averageSpeed;
+    private int destinationId;
+    private String dayOfWeek;
     private String timestamp;
 }

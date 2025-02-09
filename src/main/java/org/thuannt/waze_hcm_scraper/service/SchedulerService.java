@@ -30,9 +30,21 @@ public class SchedulerService {
                         try {
                             fileHelpers.writeToFile(inputStream, tripCoordinate.getName());
                         } catch (IOException e) {
-                            throw new RuntimeException(e);
+                            log.error("Error while writing JSON file for routing data: {}", e.getMessage());
                         }
                     });
         });
     }
+
+    @Scheduled(cron = "0 0 23 * * ?") // Runs at 11:00 PM every day
+    public void runScheduledTask() {
+        log.info("Starting Waze Scheduler: writing to CSV files");
+        // Add your task logic here
+        try {
+            fileHelpers.processJsonFilesToCsv();
+        } catch (Exception e) {
+            log.error("Error while writing to file to CSV: {}", e.getMessage());
+        }
+    }
+
 }

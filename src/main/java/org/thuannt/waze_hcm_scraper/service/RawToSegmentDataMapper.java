@@ -8,9 +8,9 @@ import org.thuannt.waze_hcm_scraper.domain.waze.tabular.RoadSegment;
 @Mapper(componentModel = "spring")
 public interface RawToSegmentDataMapper {
 
-    @Mapping(source = "path.x", target = "x")
-    @Mapping(source = "path.y", target = "y")
-    @Mapping(source = "path.segmentId", target = "segmentId")
-    @Mapping(source = "path.nodeId", target = "nodeId")
-    RoadSegment mapToSegmentData(Result rawData);
+    @Mapping(source = "rawData.path.x", target = "x")
+    @Mapping(source = "rawData.path.y", target = "y")
+    @Mapping(source = "rawData.path.segmentId", target = "segmentId")
+    @Mapping(source = "rawData.path.nodeId", target = "nodeId")
+    RoadSegment mapToSegmentData(Result rawData, Integer destinationId, String timestamp, String dayOfWeek);
 }
