@@ -127,7 +127,6 @@ public class FileHelpers {
                     .filter(path -> isFileInTimeRange(path, today.atStartOfDay(), today.atTime(23, 59)))
                     .filter(path -> path.toString().endsWith(".json"))
                     .toList();
-
             if (jsonFiles.isEmpty()) return;
             // Process each file and collect all RoadSegments
             List<RoadSegment> allRoadSegments = jsonFiles.stream()
@@ -136,9 +135,10 @@ public class FileHelpers {
                     .flatMap(Collection::stream)
                     .collect(Collectors.toList());
 
+            var route = jsonFiles.stream().findAny().map(Path::getFileName).map(Path::toString).orElse("");
             // Write to CSV
             if (!allRoadSegments.isEmpty()) {
-                writeRoadSegmentsToCsv(allRoadSegments, "combined_road_segments");
+                writeRoadSegmentsToCsv(allRoadSegments, this.getPartFromFileName(route, 0));
                 log.info("Successfully processed {} files and wrote {} road segments to CSV",
                         jsonFiles.size(), allRoadSegments.size());
             } else {
@@ -226,8 +226,7 @@ public class FileHelpers {
     }
 
     public void writeRoadSegmentsToCsv(List<RoadSegment> roadSegments, String fileName) throws IOException {
-        var currentDayOfWeek = LocalDateTime.now().getDayOfWeek().name();
-        File outputFolder = new File(filePath + "/" + currentDayOfWeek + "/" + fileName);
+        File outputFolder = new File(filePath + "/" + fileName);
         if (!outputFolder.exists()) {
             outputFolder.mkdirs();
         }
