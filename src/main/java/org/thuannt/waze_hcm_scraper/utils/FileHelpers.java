@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.thuannt.waze_hcm_scraper.domain.waze.Alternatives;
 import org.thuannt.waze_hcm_scraper.domain.waze.tabular.RoadSegment;
-import org.thuannt.waze_hcm_scraper.service.RawToSegmentDataMapper;
 import org.thuannt.waze_hcm_scraper.service.TabularDataConverter;
 
 import java.io.*;
@@ -24,8 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.sql.Timestamp;
-import java.time.DayOfWeek;
-import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -49,6 +47,9 @@ public class FileHelpers {
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 
         File outputFolder = new File(filePath  + "/" + name);
+        if (!outputFolder.exists()) {
+            outputFolder.mkdirs();
+        }
         String fileName = name + "_" + timestamp.toInstant().toEpochMilli() + ".json";
 
         File outputFile = new File(outputFolder, fileName);
@@ -116,14 +117,18 @@ public class FileHelpers {
         }
     }
 
-    public void processJsonFilesToCsv() {
+
+    public void processJsonFilesToCsv(String name) {
         try {
+            var today = LocalDate.now();
             // Get all JSON files from the folder
-            List<Path> jsonFiles = Files.walk(Paths.get(filePath))
+            List<Path> jsonFiles = Files.walk(Paths.get(filePath + "/" + name))
                     .filter(Files::isRegularFile)
+                    .filter(path -> isFileInTimeRange(path, today.atStartOfDay(), today.atTime(23, 59)))
                     .filter(path -> path.toString().endsWith(".json"))
                     .toList();
 
+            if (jsonFiles.isEmpty()) return;
             // Process each file and collect all RoadSegments
             List<RoadSegment> allRoadSegments = jsonFiles.stream()
                     .map(this::processJsonFile)

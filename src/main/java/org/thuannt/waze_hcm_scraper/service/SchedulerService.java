@@ -39,12 +39,13 @@ public class SchedulerService {
     @Scheduled(cron = "0 0 23 * * ?") // Runs at 11:00 PM every day
     public void runScheduledTask() {
         log.info("Starting Waze Scheduler: writing to CSV files");
-        // Add your task logic here
-        try {
-            fileHelpers.processJsonFilesToCsv();
-        } catch (Exception e) {
-            log.error("Error while writing to file to CSV: {}", e.getMessage());
-        }
+        wazeConfiguration.getTrip().forEach(tripCoordinate -> {
+            try {
+                fileHelpers.processJsonFilesToCsv(tripCoordinate.getName());
+            } catch (Exception e) {
+                log.error("Error while writing CSV file from json data: {}", e.getMessage());
+            }
+        });
     }
 
 }

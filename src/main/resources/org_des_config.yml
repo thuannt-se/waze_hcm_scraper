@@ -1,16 +1,72 @@
 waze:
   trip:
-  - name: north_south # KCN tan phu trung -> lotte mart le dai hanh
+  - name: CMT8
     origin:
-      lat: 10.9266034
-      lon: 106.5563046
+      lat: 10.792846
+      lon: 106.653536
     destination:
-      lat: 10.7631186
-      lon: 106.6567147
-  - name: east_west #dai lo dong tay
+      lat: 10.771577
+      lon: 106.693071
+  - name: CONGHOA
     origin:
-      lat: 10.718864
-      lon: 106.604559
+      lat: 10.807648
+      lon: 106.634863
     destination:
-      lat: 10.769021
-      lon: 106.705320
+      lat: 10.800844
+      lon: 106.661437
+  - name: NGUYENHUUTHO
+    origin:
+      lat: 10.746348
+      lon: 106.701916
+    destination:
+      lat: 10.729300
+      lon: 106.700327
+  - name: AUCO
+    origin:
+      lat: 10.795653
+      lon: 106.638294
+    destination:
+      lat: 10.769651
+      lon: 106.651500
+  - name: HOANGVANTHU
+    origin:
+      lat: 10.793955
+      lon: 106.654292
+    destination:
+      lat: 10.799148
+      lon: 106.680197
+  - name: QUANGTRUNG
+    origin:
+      lat: 10.845327
+      lon: 106.638505
+    destination:
+      lat: 10.826517
+      lon: 106.679687
+  - name: DIENBIENPHU
+    origin:
+      lat: 10.767998
+      lon: 106.674601
+    destination:
+      lat: 10.800799
+      lon: 106.715118
+  - name: LYTHUONGKIET
+    origin:
+      lat: 10.764168
+      lon: 106.659961
+    destination:
+      lat: 10.826517
+      lon: 106.679687
+  - name: TRUONGCHINH
+    origin:
+      lat: 10.840676
+      lon: 106.616303
+    destination:
+      lat: 10.793166
+      lon: 106.652861
+  - name: CAUKENHSANG
+    origin:
+      lat: 10.750259
+      lon: 106.687912
+    destination:
+      lat: 10.739445
+      lon: 106.689295
