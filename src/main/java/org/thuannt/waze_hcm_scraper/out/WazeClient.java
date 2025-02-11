@@ -12,7 +12,9 @@ import org.apache.http.message.BasicNameValuePair;
 import org.thuannt.waze_hcm_scraper.config.WazeConfiguration;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -35,7 +37,7 @@ public class WazeClient {
                         .collect(Collectors.toList()))
                 .build();
         List<Header> headers = new ArrayList<>();
-        for(Map.Entry<String, String> entry : headerMap.entrySet()) {
+        for (Map.Entry<String, String> entry : headerMap.entrySet()) {
             headers.add(new BasicHeader(entry.getKey(), entry.getValue()));
         }
 
@@ -45,7 +47,10 @@ public class WazeClient {
         if (response.getStatusLine().getStatusCode() == 200) {
             return response;
         } else {
-            throw new IOException("Failed to get routing data from Waze");
+            throw new IOException("Failed to get routing data from Waze: response status code: "
+                    + new BufferedReader(new InputStreamReader(response.getEntity().getContent()))
+                    .lines()
+                    .collect(Collectors.joining("\n")));
         }
     }
 

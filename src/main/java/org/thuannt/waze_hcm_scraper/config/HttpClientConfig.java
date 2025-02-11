@@ -44,7 +44,7 @@ public class HttpClientConfig {
     // The timeout for waiting for data
     private static final int SOCKET_TIMEOUT = 60000;
 
-    private static final int MAX_TOTAL_CONNECTIONS = 50;
+    private static final int MAX_TOTAL_CONNECTIONS = 100;
     private static final int DEFAULT_KEEP_ALIVE_TIME_MILLIS = 20 * 1000;
     private static final int CLOSE_IDLE_CONNECTION_WAIT_TIME_SECS = 30;
 

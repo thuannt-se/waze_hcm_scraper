@@ -3,6 +3,8 @@ package org.thuannt.waze_hcm_scraper.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -13,6 +15,7 @@ import java.io.IOException;
 
 @Service
 @EnableScheduling
+@EnableAsync
 @RequiredArgsConstructor
 @Slf4j
 public class SchedulerService {
@@ -21,6 +24,7 @@ public class SchedulerService {
     private final WazeConfiguration wazeConfiguration;
     private final FileHelpers fileHelpers;
 
+    @Async("asyncTaskExecutor")
     @Scheduled(cron = "0 */5 5-23 * * *")
     public void wazeScheduler() {
         log.info("Starting Waze Scheduler...");
@@ -36,6 +40,7 @@ public class SchedulerService {
         });
     }
 
+    @Async("asyncTaskExecutor")
     @Scheduled(cron = "0 0 23 * * ?") // Runs at 11:00 PM every day
     public void runScheduledTask() {
         log.info("Starting Waze Scheduler: writing to CSV files");
