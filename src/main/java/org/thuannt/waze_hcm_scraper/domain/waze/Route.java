@@ -9,6 +9,6 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Alternatives {
-    private List<RoutingData> routingData;
+public class Route {
+    private List<RoutingData> alternatives;
 }

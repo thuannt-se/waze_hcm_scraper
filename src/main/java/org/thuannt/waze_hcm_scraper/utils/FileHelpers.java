@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.thuannt.waze_hcm_scraper.domain.waze.Alternatives;
+import org.thuannt.waze_hcm_scraper.domain.waze.Route;
 import org.thuannt.waze_hcm_scraper.domain.waze.tabular.RoadSegment;
 import org.thuannt.waze_hcm_scraper.service.TabularDataConverter;
 
@@ -156,12 +156,12 @@ public class FileHelpers {
             String jsonContent = Files.readString(jsonFile);
 
             // Parse JSON to Alternatives
-            Alternatives alternatives = objectMapper.readValue(jsonContent, Alternatives.class);
+            Route route = objectMapper.readValue(jsonContent, Route.class);
 
             var timestamp = this.getPartFromFileName(jsonFile.getFileName().toString(), 1);
 
             // Convert Alternatives to RoadSegments
-            return convertAlternativesToRoadSegments(alternatives, timestamp);
+            return convertAlternativesToRoadSegments(route, timestamp);
 
         } catch (IOException e) {
             log.error("Error processing file {}: {}", jsonFile, e.getMessage());
@@ -169,12 +169,12 @@ public class FileHelpers {
         }
     }
 
-    private List<RoadSegment> convertAlternativesToRoadSegments(Alternatives alternatives, String timestamp) {
-        if (alternatives == null || alternatives.getRoutingData() == null) {
+    private List<RoadSegment> convertAlternativesToRoadSegments(Route route, String timestamp) {
+        if (route == null || route.getAlternatives() == null) {
             return Collections.emptyList();
         }
 
-        return tabularDataConverter.convert(alternatives, timestamp);
+        return tabularDataConverter.convert(route, timestamp);
     }
 
     // Optional: Method to process specific time range
