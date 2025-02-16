@@ -19,7 +19,6 @@ public class Result {
     private boolean knownDirection;
     private int penalty;
     private int roadType;
-    private boolean isToll;
     private boolean useHovLane;
     private int attributes;
     private String lane;
