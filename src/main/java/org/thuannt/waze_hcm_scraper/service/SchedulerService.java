@@ -32,7 +32,8 @@ public class SchedulerService {
                     .thenAccept(inputStream -> {
                         try {
                             fileHelpers.writeToFile(inputStream, tripCoordinate.getName());
-                        } catch (IOException e) {
+                            Thread.sleep(1000);
+                        } catch (IOException | InterruptedException e) {
                             log.error("Error while writing JSON file for routing data: {}", e.getMessage());
                         }
                     });

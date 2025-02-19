@@ -11,6 +11,7 @@ import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.thuannt.waze_hcm_scraper.domain.waze.Route;
 import org.thuannt.waze_hcm_scraper.domain.waze.tabular.RoadSegment;
@@ -117,7 +118,6 @@ public class FileHelpers {
         }
     }
 
-
     public void processJsonFilesToCsv(String name) {
         try {
             var today = LocalDate.now();
@@ -167,6 +167,37 @@ public class FileHelpers {
             log.error("Error processing file {}: {}", jsonFile, e.getMessage());
             return null;
         }
+    }
+
+    public List<RoadSegment> processJsonFile(Resource jsonFile) {
+        try {
+            log.info("Processing file: {}", jsonFile);
+            String jsonContent = new String(jsonFile.getContentAsByteArray());
+
+            // Parse JSON to Alternatives
+            Route route = objectMapper.readValue(jsonContent, Route.class);
+
+            var timestamp = this.getPartFromFileName(jsonFile.getFilename(), 1);
+
+            // Convert Alternatives to RoadSegments
+             var allRoadSegments = convertAlternativesToRoadSegments(route, timestamp).stream()
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            if (!allRoadSegments.isEmpty()) {
+                try {
+                    writeRoadSegmentsToCsv(allRoadSegments, "test");
+                    log.info("Successfully processed {} files and wrote {} road segments to CSV");
+                } catch (IOException e) {
+                    log.error("Error writing to CSV: " + e.getMessage(), e);
+                }
+            }
+
+        } catch (IOException e) {
+            log.error("Error processing file {}: {}", jsonFile, e.getMessage());
+            return null;
+        }
+        return null;
     }
 
     private List<RoadSegment> convertAlternativesToRoadSegments(Route route, String timestamp) {

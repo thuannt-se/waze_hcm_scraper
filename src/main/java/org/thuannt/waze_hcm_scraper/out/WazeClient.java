@@ -29,7 +29,7 @@ public class WazeClient {
     private final HttpClient httpClient;
     private final WazeConfiguration wazeConfiguration;
 
-    public HttpResponse getRoutingData(String coordinateServer, Map<String, String> options, Map<String, String> headerMap) throws URISyntaxException, IOException {
+    public HttpResponse getRoutingData(String coordinateServer, Map<String, String> options, Map<String, String> headerMap) throws URISyntaxException, IOException, InterruptedException {
         HttpGet httpGet = new HttpGet(wazeConfiguration.getHttpUri() + wazeConfiguration.getRoutingServers().get(coordinateServer));
         URI uri = new URIBuilder(httpGet.getURI())
                 .addParameters(options.entrySet().stream()
