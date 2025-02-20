@@ -155,12 +155,12 @@ public class FileHelpers {
             log.info("Processing file: {}", jsonFile);
             String jsonContent = Files.readString(jsonFile);
 
-            // Parse JSON to Alternatives
+            // Parse JSON to Route
             Route route = objectMapper.readValue(jsonContent, Route.class);
 
             var timestamp = this.getPartFromFileName(jsonFile.getFileName().toString(), 1);
 
-            // Convert Alternatives to RoadSegments
+            // Convert Route to RoadSegments
             return convertAlternativesToRoadSegments(route, timestamp);
 
         } catch (IOException e) {
@@ -201,7 +201,7 @@ public class FileHelpers {
     }
 
     private List<RoadSegment> convertAlternativesToRoadSegments(Route route, String timestamp) {
-        if (route == null || route.getAlternatives() == null) {
+        if (route == null || ( route.getAlternatives() == null && route.getResponse() == null)) {
             return Collections.emptyList();
         }
 
