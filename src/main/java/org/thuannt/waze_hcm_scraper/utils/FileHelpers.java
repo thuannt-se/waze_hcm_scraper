@@ -138,7 +138,7 @@ public class FileHelpers {
             var route = jsonFiles.stream().findAny().map(Path::getFileName).map(Path::toString).orElse("");
             // Write to CSV
             if (!allRoadSegments.isEmpty()) {
-                writeRoadSegmentsToCsv(allRoadSegments, this.getPartFromFileName(route, 0));
+                writeRoadSegmentsToCsv(allRoadSegments, getPartFromFileName(route, 1));
                 log.info("Successfully processed {} files and wrote {} road segments to CSV",
                         jsonFiles.size(), allRoadSegments.size());
             } else {
@@ -158,7 +158,7 @@ public class FileHelpers {
             // Parse JSON to Route
             Route route = objectMapper.readValue(jsonContent, Route.class);
 
-            var timestamp = this.getPartFromFileName(jsonFile.getFileName().toString(), 1);
+            var timestamp = getPartFromFileName(jsonFile.getFileName().toString(), 2);
 
             // Convert Route to RoadSegments
             return convertAlternativesToRoadSegments(route, timestamp);
@@ -177,7 +177,7 @@ public class FileHelpers {
             // Parse JSON to Alternatives
             Route route = objectMapper.readValue(jsonContent, Route.class);
 
-            var timestamp = this.getPartFromFileName(jsonFile.getFilename(), 1);
+            var timestamp = getPartFromFileName(jsonFile.getFilename(), 2);
 
             // Convert Alternatives to RoadSegments
              var allRoadSegments = convertAlternativesToRoadSegments(route, timestamp).stream()
@@ -247,7 +247,7 @@ public class FileHelpers {
 
         if (!allRoadSegments.isEmpty()) {
             try {
-                writeRoadSegmentsToCsv(allRoadSegments, this.getPartFromFileName(route, 0));
+                writeRoadSegmentsToCsv(allRoadSegments, this.getPartFromFileName(route, 1));
                 log.info("Successfully processed {} files and wrote {} road segments to CSV",
                         files.size(), allRoadSegments.size());
             } catch (IOException e) {
@@ -274,11 +274,6 @@ public class FileHelpers {
 
             // Write headers manually using property names
             CSVWriter csvWriter = new CSVWriter(writer);
-            Field[] fields = RoadSegment.class.getDeclaredFields();
-            String[] headers = Arrays.stream(fields)
-                    .map(Field::getName)
-                    .toArray(String[]::new);
-            csvWriter.writeNext(headers);
 
             // Write data
             beanToCsv.write(roadSegments);
@@ -289,9 +284,9 @@ public class FileHelpers {
         }
     }
 
-    private String getPartFromFileName(String filename, int group) {
+    public static String getPartFromFileName(String filename, int group) {
         try {
-            Pattern pattern = Pattern.compile(".*_(\\d+)\\.json$");
+            Pattern pattern = Pattern.compile("(.*)_(\\d+)\\.json$");
             Matcher matcher = pattern.matcher(filename);
 
             if (matcher.find()) {
