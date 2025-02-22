@@ -22,8 +22,11 @@ public class TabularDataConverter {
     private final RawToSegmentDataMapper mapper;
 
     public List<RoadSegment> convert(Route route, String timestamp) {
-        Integer destinationId = route.getAlternatives().stream().findAny().map(RoutingData::getResponse)
-                .map(Response::getDestinationInformation).map(DestinationInformation::getSegment_id).orElse(null);
+        Integer destinationId = 0;
+        if (route.getAlternatives() != null) {
+             destinationId = route.getAlternatives().stream().findAny().map(RoutingData::getResponse)
+                    .map(Response::getDestinationInformation).map(DestinationInformation::getSegment_id).orElse(null);
+        }
         if(destinationId == null && route.getResponse() != null) {
             destinationId = route.getResponse().getDestinationInformation().getSegment_id();
         }
