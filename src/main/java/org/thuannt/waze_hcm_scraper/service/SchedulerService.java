@@ -22,6 +22,7 @@ public class SchedulerService {
     private final WazeRoutingService wazeRoutingService;
     private final WazeConfiguration wazeConfiguration;
     private final FileHelpers fileHelpers;
+    private final FilesTranformer filesTranformer;
 
     @Async("asyncTaskExecutor")
     @Scheduled(cron = "0 */5 5-21 * * *", zone = "Asia/Ho_Chi_Minh")
@@ -46,7 +47,7 @@ public class SchedulerService {
         log.info("Starting Waze Scheduler: writing to CSV files");
         wazeConfiguration.getTrip().forEach(tripCoordinate -> {
             try {
-                fileHelpers.processJsonFilesToCsv(tripCoordinate.getName());
+                filesTranformer.processJsonFilesToCsv(tripCoordinate.getName());
             } catch (Exception e) {
                 log.error("Error while writing CSV file from json data: {}", e.getMessage());
             }

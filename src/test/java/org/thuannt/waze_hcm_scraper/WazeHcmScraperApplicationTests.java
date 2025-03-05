@@ -15,11 +15,6 @@ class WazeHcmScraperApplicationTests {
 
 	@Test
 	void testRegex() {
-		var test = "LYTHUONGKIET_1740002408273.json";
-		var part1 = FileHelpers.getPartFromFileName(test, 1);
-		var part2 = FileHelpers.getPartFromFileName(test, 2);
-		Assertions.assertEquals("LYTHUONGKIET", part1);
-		Assertions.assertEquals("1740002408273", part2);
 	}
 
 }

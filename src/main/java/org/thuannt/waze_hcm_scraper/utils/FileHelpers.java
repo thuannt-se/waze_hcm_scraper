@@ -4,21 +4,15 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.CSVWriter;
 import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
-import org.thuannt.waze_hcm_scraper.domain.waze.Route;
 import org.thuannt.waze_hcm_scraper.domain.waze.tabular.RoadSegment;
-import org.thuannt.waze_hcm_scraper.service.TabularDataConverter;
 
 import java.io.*;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,10 +21,8 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -38,11 +30,6 @@ public class FileHelpers {
 
     @Value("${file.upload.path}")
     private String filePath;
-
-    @Autowired
-    private TabularDataConverter tabularDataConverter;
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public void writeToFile(InputStream inputStream, String name) throws IOException {
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
@@ -118,108 +105,31 @@ public class FileHelpers {
         }
     }
 
-    public void processJsonFilesToCsv(String name) {
+    public void processJsonFilesToCsv(List<RoadSegment> allRoadSegments, String route) {
         try {
-            var today = LocalDate.now();
-            // Get all JSON files from the folder
-            List<Path> jsonFiles = Files.walk(Paths.get(filePath + "/" + name))
-                    .filter(Files::isRegularFile)
-                    .filter(path -> isFileInTimeRange(path, today.atStartOfDay(), today.atTime(23, 59)))
-                    .filter(path -> path.toString().endsWith(".json"))
-                    .toList();
-            if (jsonFiles.isEmpty()) return;
-            // Process each file and collect all RoadSegments
-            List<RoadSegment> allRoadSegments = jsonFiles.stream()
-                    .map(this::processJsonFile)
-                    .filter(Objects::nonNull)
-                    .flatMap(Collection::stream)
-                    .collect(Collectors.toList());
-
-            var route = jsonFiles.stream().findAny().map(Path::getFileName).map(Path::toString).orElse("");
-            // Write to CSV
             if (!allRoadSegments.isEmpty()) {
-                writeRoadSegmentsToCsv(allRoadSegments, getPartFromFileName(route, 1));
-                log.info("Successfully processed {} files and wrote {} road segments to CSV",
-                        jsonFiles.size(), allRoadSegments.size());
+                writeRoadSegmentsToCsv(allRoadSegments, route);
+                log.info("Successfully processed {} files and wrote road segments to CSV", allRoadSegments.size());
             } else {
                 log.warn("No road segments found in the processed files");
             }
-
         } catch (IOException e) {
             log.error("Error processing JSON files: " + e.getMessage(), e);
         }
     }
-
-    private List<RoadSegment> processJsonFile(Path jsonFile) {
+    public List<Path> getJsonFiles(long daysFrNow, String route) {
         try {
-            log.info("Processing file: {}", jsonFile);
-            String jsonContent = Files.readString(jsonFile);
-
-            // Parse JSON to Route
-            Route route = objectMapper.readValue(jsonContent, Route.class);
-
-            var timestamp = getPartFromFileName(jsonFile.getFileName().toString(), 2);
-
-            // Convert Route to RoadSegments
-            return convertAlternativesToRoadSegments(route, timestamp);
-
-        } catch (IOException e) {
-            log.error("Error processing file {}: {}", jsonFile, e.getMessage());
-            return null;
-        }
-    }
-
-    public List<RoadSegment> processJsonFile(Resource jsonFile) {
-        try {
-            log.info("Processing file: {}", jsonFile);
-            String jsonContent = new String(jsonFile.getContentAsByteArray());
-
-            // Parse JSON to Alternatives
-            Route route = objectMapper.readValue(jsonContent, Route.class);
-
-            var timestamp = getPartFromFileName(jsonFile.getFilename(), 2);
-
-            // Convert Alternatives to RoadSegments
-             var allRoadSegments = convertAlternativesToRoadSegments(route, timestamp).stream()
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-
-            if (!allRoadSegments.isEmpty()) {
-                try {
-                    writeRoadSegmentsToCsv(allRoadSegments, "test");
-                    log.info("Successfully processed {} files and wrote {} road segments to CSV");
-                } catch (IOException e) {
-                    log.error("Error writing to CSV: " + e.getMessage(), e);
-                }
-            }
-
-        } catch (IOException e) {
-            log.error("Error processing file {}: {}", jsonFile, e.getMessage());
-            return null;
-        }
-        return null;
-    }
-
-    private List<RoadSegment> convertAlternativesToRoadSegments(Route route, String timestamp) {
-        if (route == null || ( route.getAlternatives() == null && route.getResponse() == null)) {
-            return Collections.emptyList();
-        }
-
-        return tabularDataConverter.convert(route, timestamp);
-    }
-
-    // Optional: Method to process specific time range
-    public void processTimeRange(LocalDateTime start, LocalDateTime end) {
-        try {
-            List<Path> jsonFiles = Files.walk(Paths.get(filePath))
+            var today = LocalDate.now();
+            var start = today.minusDays(daysFrNow);
+            // Get all JSON files from the folder
+            return Files.walk(Paths.get(filePath + "/" + route))
                     .filter(Files::isRegularFile)
+                    .filter(path -> isFileInTimeRange(path, start.atStartOfDay(), today.atTime(23, 59)))
                     .filter(path -> path.toString().endsWith(".json"))
-                    .filter(path -> isFileInTimeRange(path, start, end))
-                    .collect(Collectors.toList());
-
-            processFiles(jsonFiles);
+                    .toList();
         } catch (IOException e) {
-            log.error("Error processing files in time range: " + e.getMessage(), e);
+            log.error("Error getting JSON files: " + e.getMessage(), e);
+            return Collections.emptyList();
         }
     }
 
@@ -234,25 +144,6 @@ public class FileHelpers {
         } catch (IOException e) {
             log.error("Error reading file attributes: " + e.getMessage(), e);
             return false;
-        }
-    }
-
-    private void processFiles(List<Path> files) {
-        var route = files.stream().findAny().map(Path::getFileName).map(Path::toString).orElse("");
-        List<RoadSegment> allRoadSegments = files.stream()
-                .map(this::processJsonFile)
-                .filter(Objects::nonNull)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
-
-        if (!allRoadSegments.isEmpty()) {
-            try {
-                writeRoadSegmentsToCsv(allRoadSegments, this.getPartFromFileName(route, 1));
-                log.info("Successfully processed {} files and wrote {} road segments to CSV",
-                        files.size(), allRoadSegments.size());
-            } catch (IOException e) {
-                log.error("Error writing to CSV: " + e.getMessage(), e);
-            }
         }
     }
 
@@ -284,17 +175,5 @@ public class FileHelpers {
         }
     }
 
-    public static String getPartFromFileName(String filename, int group) {
-        try {
-            Pattern pattern = Pattern.compile("(.*)_(\\d+)\\.json$");
-            Matcher matcher = pattern.matcher(filename);
 
-            if (matcher.find()) {
-                return matcher.group(group);
-            }
-        } catch (Exception e) {
-            log.error("Error parsing timestamp from filename: {}", filename, e);
-        }
-        return null;
-    }
 }
