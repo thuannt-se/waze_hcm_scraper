@@ -4,12 +4,14 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.CSVWriter;
 import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.thuannt.waze_hcm_scraper.domain.deeptte.DeepTTEDataSet;
 import org.thuannt.waze_hcm_scraper.domain.waze.tabular.RoadSegment;
 
 import java.io.*;
@@ -30,6 +32,7 @@ public class FileHelpers {
 
     @Value("${file.upload.path}")
     private String filePath;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public void writeToFile(InputStream inputStream, String name) throws IOException {
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());

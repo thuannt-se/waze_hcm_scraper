@@ -9,7 +9,10 @@ import org.thuannt.waze_hcm_scraper.domain.waze.Route;
 import org.thuannt.waze_hcm_scraper.domain.waze.tabular.RoadSegment;
 import org.thuannt.waze_hcm_scraper.utils.FileHelpers;
 
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -29,10 +32,24 @@ public class FilesTranformer {
     private final DeepTTEDataConverter deepTTEDataConverter;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    public List<DeepTTEDataSet> transformDeepTte(String route, long days) {
+        var jsonFiles = fileHelpers.getJsonFiles(days, route);
+        return this.transformToDeepTte(jsonFiles);
+    }
 
-    public byte[] transformDeepTte(String route, double days, double trainRatio) {
-        var jsonFiles = fileHelpers.getJsonFiles(0, route);
-        return null;
+    public byte[] writeToByteArray(List<DeepTTEDataSet> inputs) throws IOException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream))) {
+            for (DeepTTEDataSet input : inputs) {
+                String jsonContent = objectMapper.writeValueAsString(input);
+
+                writer.write(jsonContent);
+                writer.newLine();
+            }
+        } // The BufferedWriter is automatically closed here
+
+        // Return the byte array of the written content
+        return byteArrayOutputStream.toByteArray();
     }
 
     private List<RoadSegment> getPeriodRoadSegment(long daysFrNow, String route) {
