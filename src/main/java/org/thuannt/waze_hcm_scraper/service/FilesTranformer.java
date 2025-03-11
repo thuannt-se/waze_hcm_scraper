@@ -30,14 +30,16 @@ public class FilesTranformer {
     private final TabularDataConverter tabularDataConverter;
     private final FileHelpers fileHelpers;
     private final DeepTTEDataConverter deepTTEDataConverter;
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public List<DeepTTEDataSet> transformDeepTte(String route, long days) {
+        log.info("Starting to process json files for deep tte for {} from now", days);
         var jsonFiles = fileHelpers.getJsonFiles(days, route);
         return this.transformToDeepTte(jsonFiles);
     }
 
-    public byte[] writeToByteArray(List<DeepTTEDataSet> inputs) throws IOException {
+    public static byte[] writeToByteArray(List<DeepTTEDataSet> inputs) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream))) {
             for (DeepTTEDataSet input : inputs) {
@@ -65,7 +67,7 @@ public class FilesTranformer {
     public void processJsonFilesToCsv(String route) {
         var jsonFiles = fileHelpers.getJsonFiles(0, route);
         var allRoadSegments = transformRoutes(jsonFiles);
-        fileHelpers.processJsonFilesToCsv(allRoadSegments, route);
+        fileHelpers.processFilesToCsv(allRoadSegments, route, true);
     }
 
     private List<DeepTTEDataSet> transformToDeepTte(List<Path> jsonFiles) {
@@ -88,8 +90,9 @@ public class FilesTranformer {
     }
 
     private List<DeepTTEDataSet> toDeepTteDataset(Path jsonFile) {
+        ObjectMapper objectMapper = new ObjectMapper();
+
         try {
-            log.info("Processing file: {}", jsonFile);
             String jsonContent = Files.readString(jsonFile);
 
             // Parse JSON to Route
@@ -107,6 +110,7 @@ public class FilesTranformer {
     }
 
     private List<RoadSegment> toRoadSegments(Path jsonFile) {
+        ObjectMapper objectMapper = new ObjectMapper();
         try {
             log.info("Processing file: {}", jsonFile);
             String jsonContent = Files.readString(jsonFile);

@@ -11,8 +11,7 @@ import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.thuannt.waze_hcm_scraper.domain.deeptte.DeepTTEDataSet;
-import org.thuannt.waze_hcm_scraper.domain.waze.tabular.RoadSegment;
+import org.thuannt.waze_hcm_scraper.domain.waze.tabular.CsvData;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -108,17 +107,22 @@ public class FileHelpers {
         }
     }
 
-    public void processJsonFilesToCsv(List<RoadSegment> allRoadSegments, String route) {
+    public <T extends CsvData> String processFilesToCsv(List<T> data, String route, boolean isDownloaded) {
         try {
-            if (!allRoadSegments.isEmpty()) {
-                writeRoadSegmentsToCsv(allRoadSegments, route);
-                log.info("Successfully processed {} files and wrote road segments to CSV", allRoadSegments.size());
+            if (!data.isEmpty()) {
+                var content = writeRoadSegmentsToCsv(data);
+                if (!isDownloaded) {
+                    writeDataToFile(content, route);
+                    log.info("Successfully processed {} files and wrote road segments to CSV", data.size());
+                }
+                return content;
             } else {
                 log.warn("No road segments found in the processed files");
             }
         } catch (IOException e) {
             log.error("Error processing JSON files: " + e.getMessage(), e);
         }
+        return route;
     }
     public List<Path> getJsonFiles(long daysFrNow, String route) {
         try {
@@ -150,17 +154,10 @@ public class FileHelpers {
         }
     }
 
-    public void writeRoadSegmentsToCsv(List<RoadSegment> roadSegments, String fileName) throws IOException {
-        File outputFolder = new File(filePath + "/" + fileName);
-        if (!outputFolder.exists()) {
-            outputFolder.mkdirs();
-        }
+    public <T extends CsvData> String writeRoadSegmentsToCsv(List<T> data) throws IOException {
 
-        String csvFileName = fileName + ".csv";
-        File csvFile = new File(outputFolder, csvFileName);
-
-        try (Writer writer = new FileWriter(csvFile)) {
-            StatefulBeanToCsv<RoadSegment> beanToCsv = new StatefulBeanToCsvBuilder<RoadSegment>(writer)
+        try (StringWriter writer = new StringWriter()) {
+            StatefulBeanToCsv beanToCsv = new StatefulBeanToCsvBuilder<>(writer)
                     .withQuotechar(CSVWriter.DEFAULT_QUOTE_CHARACTER)
                     .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
                     .withOrderedResults(true)
@@ -170,13 +167,27 @@ public class FileHelpers {
             CSVWriter csvWriter = new CSVWriter(writer);
 
             // Write data
-            beanToCsv.write(roadSegments);
-            log.info("CSV file created successfully: " + csvFileName);
+            beanToCsv.write(data);
+            return writer.toString();
         } catch (Exception e) {
-            log.error("Error writing CSV file: " + e.getMessage(), e);
+            log.error("Error building CSV file: " + e.getMessage(), e);
             throw new IOException("Failed to write CSV file", e);
         }
     }
 
+    private void writeDataToFile(String content, String fileName) {
+        File outputFolder = new File(filePath + "/" + fileName);
+        if (!outputFolder.exists()) {
+            outputFolder.mkdirs();
+        }
+        String csvFileName = fileName + ".csv";
+        File csvFile = new File(outputFolder, csvFileName);
+        try (Writer writer = new FileWriter(csvFile)) {
+            writer.write(content);
+            log.info("CSV file created successfully: " + csvFileName);
+        } catch (IOException e) {
+            log.error("Error writing CSV file: " + e.getMessage(), e);
+        }
+    }
 
 }

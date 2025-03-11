@@ -1,19 +1,20 @@
 package org.thuannt.waze_hcm_scraper.domain.deeptte;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.opencsv.bean.CsvBindByName;
+import lombok.*;
+import org.thuannt.waze_hcm_scraper.domain.waze.tabular.CsvData;
 
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DeepTTEDataSet {
+public class DeepTTEDataSet extends CsvData {
     @JsonProperty("time_gap")
+    @CsvBindByName(column = "time_gap")
     public List<Double> timeGap;
     public Double dist;
     public List<Double> lats;
@@ -26,6 +27,7 @@ public class DeepTTEDataSet {
     public List<Double> lngs;
 
     @JsonProperty("dist_gap")
+    @CsvBindByName(column = "dist_gap")
     public List<Double> distGap;
 }
 

@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RoadSegment {
+public class RoadSegment extends CsvData {
     private int segmentId;
     private int nodeId;
     private double x;
