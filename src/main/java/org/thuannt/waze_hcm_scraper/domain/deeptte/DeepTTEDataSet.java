@@ -7,17 +7,18 @@ import org.thuannt.waze_hcm_scraper.domain.waze.tabular.CsvData;
 
 import java.util.List;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DeepTTEDataSet extends CsvData {
+public class DeepTTEDataSet {
     @JsonProperty("time_gap")
-    @CsvBindByName(column = "time_gap")
     public List<Double> timeGap;
+
     public Double dist;
+
     public List<Double> lats;
+
     public int extraId; //Use this field for any feature you want to add
     public int weekID;
     public List<Double> states;
@@ -27,7 +28,6 @@ public class DeepTTEDataSet extends CsvData {
     public List<Double> lngs;
 
     @JsonProperty("dist_gap")
-    @CsvBindByName(column = "dist_gap")
     public List<Double> distGap;
 }
 

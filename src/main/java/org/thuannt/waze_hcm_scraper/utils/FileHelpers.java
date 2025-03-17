@@ -140,6 +140,19 @@ public class FileHelpers {
         }
     }
 
+    public List<Path> getCsvFile() {
+        try {
+            // Get all JSON files from the folder
+            return Files.walk(Paths.get(filePath))
+                    .filter(Files::isRegularFile)
+                    .filter(path -> path.toString().endsWith(".csv"))
+                    .toList();
+        } catch (IOException e) {
+            log.error("Error getting JSON files: " + e.getMessage(), e);
+            return Collections.emptyList();
+        }
+    }
+
     private boolean isFileInTimeRange(Path file, LocalDateTime start, LocalDateTime end) {
         try {
             BasicFileAttributes attrs = Files.readAttributes(file, BasicFileAttributes.class);
@@ -157,7 +170,7 @@ public class FileHelpers {
     public <T extends CsvData> String writeRoadSegmentsToCsv(List<T> data) throws IOException {
 
         try (StringWriter writer = new StringWriter()) {
-            StatefulBeanToCsv beanToCsv = new StatefulBeanToCsvBuilder<>(writer)
+            StatefulBeanToCsv<T> beanToCsv = new StatefulBeanToCsvBuilder<T>(writer)
                     .withQuotechar(CSVWriter.DEFAULT_QUOTE_CHARACTER)
                     .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
                     .withOrderedResults(true)

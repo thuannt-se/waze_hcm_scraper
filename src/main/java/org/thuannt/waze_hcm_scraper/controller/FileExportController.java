@@ -22,8 +22,14 @@ public class FileExportController {
                                                        @RequestParam double trainRatio,
                                                        @RequestParam double testRatio,
                                                        @RequestParam long days,
-                                                       @RequestParam String type) {
-        byte[] compressedData = fileGeneratorService.generateDeepTteTrainDataset(route, days, trainRatio, testRatio, type );
+                                                       @RequestParam String type,
+                                                       @RequestParam String source) throws IOException {
+        byte[] compressedData = null;
+        if(source == "local-csv") {
+            compressedData = fileGeneratorService.generateDeepTteTrainDatasetOnlyCsv();
+        } else {
+            compressedData = fileGeneratorService.generateDeepTteTrainDataset(route, days, trainRatio, testRatio, type );
+        }
 
         if (compressedData == null || compressedData.length == 0) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); // or handle appropriately
@@ -59,4 +65,5 @@ public class FileExportController {
         // Return the ResponseEntity with the byte array
         return new ResponseEntity<>(data, headers, HttpStatus.OK);
     }
+
 }

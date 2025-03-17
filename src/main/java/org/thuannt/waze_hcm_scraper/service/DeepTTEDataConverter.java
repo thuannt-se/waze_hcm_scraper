@@ -32,6 +32,7 @@ public class DeepTTEDataConverter {
         var dateId = date.getDayOfMonth() - 1;
         var lats = response.getResults().stream().map(Result::getPath).map(Path::getY).toList();
         var lngs = response.getResults().stream().map(Result::getPath).map(Path::getX).toList();
+        var disGap = response.getResults().stream().map(Result::getLength).map(Double::valueOf).map(len -> len/1000).toList();
         var timeGaps = response.getResults().stream().map(Result::getDistance).map(Double::valueOf).toList();
         var dist = response.getResults().stream().map(Result::getLength).map(Double::valueOf).reduce(Double::sum).orElse(0.0);
 
@@ -43,6 +44,8 @@ public class DeepTTEDataConverter {
                 .dist(dist/1000)
                 .time(response.getTotalRouteTime())
                 .lats(lats)
-                .lngs(lngs).build();
+                .lngs(lngs)
+                .distGap(disGap)
+                .build();
     }
 }

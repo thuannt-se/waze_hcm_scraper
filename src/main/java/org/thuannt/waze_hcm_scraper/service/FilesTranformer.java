@@ -1,18 +1,18 @@
 package org.thuannt.waze_hcm_scraper.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.thuannt.waze_hcm_scraper.domain.deeptte.DeepTTEDataCSV;
 import org.thuannt.waze_hcm_scraper.domain.deeptte.DeepTTEDataSet;
 import org.thuannt.waze_hcm_scraper.domain.waze.Route;
 import org.thuannt.waze_hcm_scraper.domain.waze.tabular.RoadSegment;
 import org.thuannt.waze_hcm_scraper.utils.FileHelpers;
 
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -36,6 +36,34 @@ public class FilesTranformer {
         var jsonFiles = fileHelpers.getJsonFiles(days, route);
         return this.transformToDeepTte(jsonFiles);
     }
+
+    public List<DeepTTEDataCSV> transformDeepTteFromCsv() {
+        log.info("Starting to process csv files for deep tte");
+        var paths = fileHelpers.getCsvFile();
+
+        return paths.stream()
+                .map(Path::toString)
+                .map(this::readCsvToObject)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
+    }
+
+    private List<DeepTTEDataCSV> readCsvToObject(String filePath) {
+        FileReader reader = null;
+        try {
+            reader = new FileReader(filePath);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        CsvToBean<DeepTTEDataCSV> csvToBean = new CsvToBeanBuilder<DeepTTEDataCSV>(reader)
+                .withType(DeepTTEDataCSV.class)
+                .withIgnoreLeadingWhiteSpace(true)
+                .withSeparator(',')
+                .build();
+
+        return csvToBean.parse();
+    }
+
 
     public static byte[] writeToByteArray(List<DeepTTEDataSet> inputs) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
