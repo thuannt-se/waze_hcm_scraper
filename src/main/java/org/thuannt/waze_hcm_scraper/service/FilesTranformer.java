@@ -1,6 +1,7 @@
 package org.thuannt.waze_hcm_scraper.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.opencsv.CSVReader;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +50,7 @@ public class FilesTranformer {
     }
 
     private List<DeepTTEDataCSV> readCsvToObject(String filePath) {
+        log.info("Reading csv file: {}", filePath);
         FileReader reader = null;
         try {
             reader = new FileReader(filePath);

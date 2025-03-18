@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.thuannt.waze_hcm_scraper.service.FileGeneratorService;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @RestController
@@ -22,14 +23,28 @@ public class FileExportController {
                                                        @RequestParam double trainRatio,
                                                        @RequestParam double testRatio,
                                                        @RequestParam long days,
-                                                       @RequestParam String type,
-                                                       @RequestParam String source) throws IOException {
+                                                       @RequestParam String type) throws IOException {
         byte[] compressedData = null;
-        if(source == "local-csv") {
-            compressedData = fileGeneratorService.generateDeepTteTrainDatasetOnlyCsv();
-        } else {
-            compressedData = fileGeneratorService.generateDeepTteTrainDataset(route, days, trainRatio, testRatio, type );
+        compressedData = fileGeneratorService.generateDeepTteTrainDataset(route, days, trainRatio, testRatio, type );
+
+        if (compressedData == null || compressedData.length == 0) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); // or handle appropriately
         }
+
+        // Prepare the headers for the response
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDispositionFormData("attachment", "data.zip"); // Set the file name
+        headers.setContentLength(compressedData.length);
+
+        // Return the ResponseEntity with the byte array
+        return new ResponseEntity<>(compressedData, headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/export/deeptte/records-local-csv")
+    public ResponseEntity<byte[]> exportDeepTteRecords(@RequestParam String type) throws IOException {
+        byte[] compressedData = null;
+            compressedData = fileGeneratorService.generateDeepTteTrainDatasetOnlyCsv(type);
 
         if (compressedData == null || compressedData.length == 0) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR); // or handle appropriately

@@ -38,11 +38,12 @@ public class FileGeneratorService {
         return FilesTranformer.writeToByteArray(trainData);
     }
 
-    public byte[] generateDeepTteTrainDatasetOnlyCsv() throws IOException {
+    public byte[] generateDeepTteTrainDatasetOnlyCsv(String type) throws IOException {
         var data = filesTranformer.transformDeepTteFromCsv();
+        log.info("Data CSV size: {}", data.size());
         try(ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream);
-            writeData(zipOutputStream, "train", fromCsvToDeepTteData(data), "json");
+            writeData(zipOutputStream, type, fromCsvToDeepTteData(data), "json");
             zipOutputStream.close();
             return outputStream.toByteArray();
         } catch (Exception e) {
