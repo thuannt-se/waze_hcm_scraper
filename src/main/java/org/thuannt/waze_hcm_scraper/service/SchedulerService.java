@@ -25,7 +25,7 @@ public class SchedulerService {
     private final FilesTranformer filesTranformer;
 
     @Async("asyncTaskExecutor")
-    //@Scheduled(cron = "0 */5 5-21 * * *", zone = "Asia/Ho_Chi_Minh")
+    @Scheduled(cron = "0 */5 5-21 * * *", zone = "Asia/Ho_Chi_Minh")
     public void wazeScheduler() {
         log.info("Starting Waze Scheduler...");
         wazeConfiguration.getTrip().forEach(tripCoordinate -> {

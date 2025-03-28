@@ -27,6 +27,7 @@ public class FileGeneratorService {
     private final FileHelpers fileHelpers;
     private final WazeConfiguration wazeConfiguration;
     private static final int MAX_RECORD = 3600;
+    private int i = 0;
 
     public byte[] generateDeepTteTrainDatasetOnly(String route, long days , double trainRatio, double validationRatio) throws IOException {
         var data = filesTranformer.transformDeepTte(route, days);
@@ -88,8 +89,8 @@ public class FileGeneratorService {
     private void writeData(ZipOutputStream zipOutputStream, String fileName, List<DeepTTEDataSet> data, String type) throws IOException {
         log.info("Writing data to zip file: {}, size data={}", fileName, data.size());
         List<List<DeepTTEDataSet>> dataSubList = divideIntoSubList(data, MAX_RECORD);
-        for(int i = 0; i < dataSubList.size(); i++) {
-            writeDataToZip(zipOutputStream, fileName + "_" + i, dataSubList.get(i), type);
+        for (int j = 0; j < dataSubList.size(); j++) {
+            writeDataToZip(zipOutputStream, fileName + "_" + i++, dataSubList.get(j), type);
         }
     }
 

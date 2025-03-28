@@ -127,7 +127,7 @@ public class FilesTranformer {
 
             // Parse JSON to Route
             Route route = objectMapper.readValue(jsonContent, Route.class);
-
+            log.info("Processing file: {}", jsonFile.getFileName().toString());
             var timestamp = getPartFromFileName(jsonFile.getFileName().toString(), 2);
 
             // Convert Route to RoadSegments

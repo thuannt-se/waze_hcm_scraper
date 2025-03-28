@@ -8,6 +8,7 @@ import org.thuannt.waze_hcm_scraper.domain.waze.tabular.RoadSegment;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,13 +27,18 @@ public class DeepTTEDataConverter {
     }
 
     private DeepTTEDataSet transformToRoadSegment(Response response, String timestamp) {
+        List<Double> distGaps = new ArrayList<>();
+        double val = 0;
+        for (Result result : response.getResults()) {
+            val += result.getLength();
+            distGaps.add(val/1000);
+        }
         var date = LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(timestamp)), ZoneId.systemDefault());
         var timeId = date.getMinute() + 60 * date.getHour();
         var weekId = date.getDayOfWeek().getValue() - 1;
         var dateId = date.getDayOfMonth() - 1;
         var lats = response.getResults().stream().map(Result::getPath).map(Path::getY).toList();
         var lngs = response.getResults().stream().map(Result::getPath).map(Path::getX).toList();
-        var disGap = response.getResults().stream().map(Result::getLength).map(Double::valueOf).map(len -> len/1000).toList();
         var timeGaps = response.getResults().stream().map(Result::getDistance).map(Double::valueOf).toList();
         var dist = response.getResults().stream().map(Result::getLength).map(Double::valueOf).reduce(Double::sum).orElse(0.0);
 
@@ -45,7 +51,7 @@ public class DeepTTEDataConverter {
                 .time(response.getTotalRouteTime())
                 .lats(lats)
                 .lngs(lngs)
-                .distGap(disGap)
+                .distGap(distGaps)
                 .build();
     }
 }
